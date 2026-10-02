@@ -1,14 +1,43 @@
 (() => {
-  const count = document.getElementById('busuanzi_value_page_pv');
-  if (!count || location.hostname !== 'tanpig-x.github.io') return;
+  const badge = document.getElementById('page-views-badge');
+  const status = document.getElementById('page-views-status');
+  const retry = document.getElementById('page-views-retry');
+  if (!badge || !status || !retry || location.hostname !== 'tanpig-x.github.io') return;
 
-  const showUnavailable = () => {
-    if (count.textContent.trim() === '—') count.textContent = 'Unavailable';
+  let loading = false;
+  let timeout;
+
+  const showFailure = () => {
+    window.clearTimeout(timeout);
+    loading = false;
+    badge.hidden = true;
+    status.hidden = false;
+    status.textContent = 'Page views · Temporarily offline';
+    retry.hidden = false;
   };
-  const counter = document.createElement('script');
-  counter.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-  counter.async = true;
-  counter.onerror = showUnavailable;
-  document.head.appendChild(counter);
-  window.setTimeout(showUnavailable, 10000);
+
+  badge.onload = () => {
+    if (!badge.naturalWidth) return showFailure();
+    window.clearTimeout(timeout);
+    loading = false;
+    badge.hidden = false;
+    status.hidden = true;
+    retry.hidden = true;
+  };
+  badge.onerror = showFailure;
+
+  const load = () => {
+    if (loading) return;
+    loading = true;
+    badge.hidden = true;
+    status.hidden = false;
+    status.textContent = 'Page views · Loading…';
+    retry.hidden = true;
+    // One badge request records one view. Do not poll or retry automatically.
+    timeout = window.setTimeout(showFailure, 15000);
+    badge.src = `${badge.dataset.src}&_=${Date.now()}`;
+  };
+
+  retry.addEventListener('click', load);
+  load();
 })();
