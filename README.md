@@ -17,6 +17,10 @@ Zhejiang University
 
 [![PDE-JEPA framework](https://tanpig-x.github.io/PDE-JEPA/assets/method.svg?v=91ee3644ef99)](https://tanpig-x.github.io/PDE-JEPA/)
 
+## TODO
+
+- [ ] Upload training datasets.
+
 ## Results
 
 The [paper](https://arxiv.org/abs/2609.34715) reports the best ID performance on **8 of 9 benchmarks** and the best OOD performance on **all 5 evaluated benchmarks**, with average improvements of **33.4% ID** and **51.4% OOD**.
