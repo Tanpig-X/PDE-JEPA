@@ -1,0 +1,71 @@
+# Physics-Structured Latent Predictor (paper Section 4.3).
+folder: ${OUTPUT_ROOT}/psp
+representation:
+  pag_checkpoint: ${OUTPUT_ROOT}/pag/best.pt
+  encoder_checkpoint: ${OUTPUT_ROOT}/cooldown/latest.pth.tar
+  encoder_pretrain_config: ${OUTPUT_ROOT}/cooldown/params-pretrain.yaml
+  encoder_key: target_encoder
+  projector_hidden_dim: 384
+  frame_encode_chunk_size: 64
+  dtype: bfloat16
+data:
+  channels: 1
+  condition_key: mu
+  train: ${DATA_ROOT}/vorticity/train.h5
+  id_val: ${DATA_ROOT}/vorticity/val.h5
+  frames: 30
+  tokens: 256
+  latent_dim: 192
+  channel_mean: [0.0]
+  channel_std: [3.737]
+  cache_batch_size: 8
+  num_workers: 4
+  delta_t_data: 0.06896551724137931
+model:
+  task: vorticity
+  type: structured_latent_ode
+  input_dim: 192
+  embed_dim: 384
+  depth: 24
+  num_heads: 12
+  mlp_ratio: 4.0
+  qkv_bias: true
+  dropout: 0.0
+  attention_dropout: 0.0
+  token_grid_size: 16
+  head_init_std: 0.001
+  use_sdpa: true
+# Bounds are recomputed from ID training viscosities before optimization.
+condition:
+  nu_min_train: 0.0010054005542770028
+  nu_max_train: 0.009999999776482582
+ode:
+  solver: rk4
+  substeps: 4
+  state_dtype: float32
+training:
+  epochs: 50
+  transitions_per_trajectory: 4
+  effective_transition_batch_size: 64
+  microbatch: 16
+  activation_checkpointing: false
+  lr: 0.0001
+  betas: [0.9, 0.95]
+  weight_decay: 0.05
+  warmup_ratio: 0.05
+  min_lr: 1.0e-6
+  grad_clip: 1.0
+  seed: 0
+  log_every_steps: 50
+  checkpoint_every_steps: 50
+  resume: true
+loss:
+  eps: 1.0e-8
+validation:
+  subset_every_epoch: 256
+  full_every_epochs: 5
+  batch_size: 16
+wandb:
+  enabled: false
+  project: pde-jepa
+  name: vorticity-psp-depth24

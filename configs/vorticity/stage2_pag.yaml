@@ -1,0 +1,69 @@
+# Physics-Aligned Latent Geometry (paper Section 4.2).
+# Global batch: 16 trajectories; a single GPU accumulates two batches of 8.
+folder: ${OUTPUT_ROOT}/pag
+meta:
+  dtype: bfloat16
+  seed: 239
+  encoder_checkpoint: ${OUTPUT_ROOT}/cooldown/latest.pth.tar
+  encoder_pretrain_config: ${OUTPUT_ROOT}/cooldown/params-pretrain.yaml
+  load_checkpoint: true
+  read_checkpoint: null
+  log_freq: 10
+data:
+  datasets: ["${DATA_ROOT}/vorticity/train.h5"]
+  val_datasets: ["${DATA_ROOT}/vorticity/val.h5"]
+  batch_size: 8
+  dataset_fpcs: [30]
+  num_workers: 4
+  persistent_workers: true
+  pin_mem: true
+  dataset:
+    group_name: auto
+    states_key: states
+    condition_key: mu
+    channels: 1
+    channel_mean: [0.0]
+    channel_std: [3.737]
+    random_temporal_crop: false
+encoder:
+  frame_encode_chunk_size: 64
+projector:
+  hidden_dim: 384
+  zero_init_output: true
+geometry:
+  lags: [1, 2, 4]
+  lag_weights: [1.0, 0.5, 0.25]
+  loss: smooth_l1
+  eps: 1.0e-6
+condition:
+  log_mean: -5.34262367485676
+  log_std: 0.578370640614279
+loss:
+  lambda_geometry: 0.1
+  lambda_anchor: 0.01
+  eps: 1.0e-8
+predictor:
+  predictor_embed_dim: 384
+  depth: 24
+  num_heads: 12
+  use_activation_checkpointing: true
+  use_sdpa: true
+  zero_init_output: true
+optimization:
+  effective_batch_size: 16
+  epochs: 50
+  warmup: 5
+  start_lr: 1.0e-6
+  lr: 5.0e-5
+  final_lr: 1.0e-6
+  weight_decay: 0.04
+  final_weight_decay: 0.04
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+  clip_grad: 1.0
+evaluation:
+  max_trajectories: 480
+wandb:
+  enabled: false
+  project: pde-jepa
+  name: vorticity-pag

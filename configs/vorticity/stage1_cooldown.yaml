@@ -1,0 +1,98 @@
+app: pretrain
+folder: ${OUTPUT_ROOT}/cooldown
+wandb:
+  enabled: false
+  project: PDE-JEPA
+  name: vorticity-cooldown
+data:
+  datasets:
+  - ${DATA_ROOT}/vorticity/train.h5
+  batch_size: 16
+  crop_size: 128
+  patch_size: 8
+  dataset_fpcs:
+  - 30
+  tubelet_size: 1
+  num_workers: 8
+  persistent_workers: true
+  pin_mem: true
+  dataset:
+    group_name: train
+    states_key: states
+    condition_key: mu
+    temporal_stride: 1
+    spatial_stride: 1
+    trajectory_stride: 1
+    channels: 1
+    channel_mean:
+    - 0.0
+    channel_std:
+    - 3.737
+    random_temporal_crop: false
+loss:
+  loss_exp: 1.0
+  predict_all: true
+  shift_by_n: 0
+  weight_distance_loss: true
+  offset_context_loss: false
+mask:
+- aspect_ratio:
+  - 0.75
+  - 1.5
+  max_keep: null
+  max_temporal_keep: 1.0
+  num_blocks: 8
+  spatial_scale:
+  - 0.15
+  - 0.15
+  temporal_scale:
+  - 1.0
+  - 1.0
+- aspect_ratio:
+  - 0.75
+  - 1.5
+  max_keep: null
+  max_temporal_keep: 1.0
+  num_blocks: 2
+  spatial_scale:
+  - 0.7
+  - 0.7
+  temporal_scale:
+  - 1.0
+  - 1.0
+meta:
+  dtype: bfloat16
+  load_checkpoint: true
+  read_checkpoint: null
+  save_every_freq: 10
+  seed: 239
+  use_sdpa: true
+model:
+  model_name: vit_tiny
+  pred_depth: 12
+  pred_embed_dim: 384
+  pred_num_heads: 12
+  uniform_power: true
+  use_activation_checkpointing: true
+  use_rope: true
+  zero_init_mask_tokens: true
+  lambda_value_vid: 0.5
+  lambda_progressive: true
+  levels_predictor: 4
+optimization:
+  anneal_ckpt: ${OUTPUT_ROOT}/pretrain/latest.pth.tar
+  ema:
+  - 0.99925
+  - 0.99925
+  epochs: 50
+  final_lr: 1.0e-06
+  final_weight_decay: 0.04
+  ipe: null
+  ipe_scale: 1.0
+  is_anneal: true
+  lr: 0.00035
+  resume_anneal: true
+  start_lr: 0.0001
+  warmup: 0
+  weight_decay: 0.04
+device: cuda

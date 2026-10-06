@@ -1,0 +1,40 @@
+# Physical-field decoder trained on frozen PSP rollouts.
+folder: ${OUTPUT_ROOT}/decoder
+seed: 239
+device: cuda
+representation:
+  encoder_checkpoint: ${OUTPUT_ROOT}/cooldown/latest.pth.tar
+  encoder_pretrain_config: ${OUTPUT_ROOT}/cooldown/params-pretrain.yaml
+  encoder_key: target_encoder
+  pag_checkpoint: ${OUTPUT_ROOT}/pag/best.pt
+psp_checkpoint: ${OUTPUT_ROOT}/psp/checkpoints/best_id_val.pth.tar
+cache_dir: ${OUTPUT_ROOT}/rollout_cache
+data:
+  channels: 1
+  channel_mean: [0.0]
+  channel_std: [3.737]
+  condition_key: mu
+  train: ${DATA_ROOT}/vorticity/train.h5
+  val: ${DATA_ROOT}/vorticity/val.h5
+  ood: ${DATA_ROOT}/vorticity_ood/val.h5
+  frames: 30
+  batch_size: 16
+  num_workers: 4
+model:
+  conv_channels: [192, 128, 96, 64]
+  blocks_per_stage: 1
+  activation: gelu
+  norm_groups: 8
+  spatial_padding_mode: circular
+  init_std: 0.02
+optimization:
+  epochs: 50
+  warmup: 5
+  start_lr: 0.000001
+  lr: 0.0001
+  final_lr: 0.000001
+  weight_decay: 0.04
+  betas: [0.9, 0.999]
+  eps: 0.00000001
+  clip_grad: 1.0
+save_every: 10
