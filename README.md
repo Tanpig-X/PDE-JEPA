@@ -49,7 +49,7 @@ Requires **Python 3.10+** and **PyTorch 2.4+**. The supplied training configurat
 conda create -n pde-jepa python=3.12 -y
 conda activate pde-jepa
 
-git clone https://github.com/Tanpig-X/PDE-JEPA.git
+git clone --depth 1 https://github.com/Tanpig-X/PDE-JEPA.git
 cd PDE-JEPA
 python -m pip install -e .
 ```
@@ -57,6 +57,26 @@ python -m pip install -e .
 Dependencies are declared in `pyproject.toml` and installed into the active environment. Editable installation uses the code in this repository.
 
 For optional Weights & Biases logging, install `.[logging]` and enable logging in the configuration.
+
+### Optional website assets
+
+The project website is stored in the optional `docs` submodule at
+[PDE-JEPA-docs](https://github.com/Tanpig-X/PDE-JEPA-docs). Normal clones do not
+download the submodule's contents, and training does not require them. The
+`--depth 1` option above also avoids downloading website assets stored in older
+commits; omit it if you need the full repository history.
+
+To fetch the website files from an existing clone:
+
+```bash
+git submodule update --init --depth 1 docs
+```
+
+The website remains at [tanpig-x.github.io/PDE-JEPA](https://tanpig-x.github.io/PDE-JEPA/).
+GitHub Pages builds it from this repository's `main` branch and `/docs` folder.
+After changing the website, push its commit to the submodule repository, then
+commit and push the updated `docs` reference here to publish it. See the
+[website maintenance instructions](https://github.com/Tanpig-X/PDE-JEPA-docs#publish-an-update).
 
 ## Data
 
